@@ -10,14 +10,14 @@ import com.ja.callables.Evaluation;
 import com.ja.callables.Mutate;
 import com.ja.callables.Selection;
 
-public class ProblemDescription<Individual> {
+public class ProblemDescription<Chromosome> {
 
-	public Collection<Individual> mInitialPopulation;
-	public Evaluation<Individual> mEvaluationFunction;
-	public Selection<Individual> mSelectionFunction = new RankSelection<Individual>();
-	public Crossover<Individual> mCrossoverFunction;
-	public Mutate<Individual> mMutateFunction;
-	public EndCondition<Individual> mEndConditionFunction = new GenerationsEndCondition<Individual>(1000);
+	public Collection<Chromosome> mInitialPopulation;
+	public Evaluation<Chromosome> mEvaluationFunction;
+	public Selection<Chromosome> mSelectionFunction = new RankSelection<Chromosome>();
+	public Crossover<Chromosome> mCrossoverFunction;
+	public Mutate<Chromosome> mMutateFunction;
+	public EndCondition<Chromosome> mEndConditionFunction = new GenerationsEndCondition<Chromosome>(1000);
 	public float mCrossoverProbability;
 	public float mMutateProbability;
 	public int mElitismNumber;

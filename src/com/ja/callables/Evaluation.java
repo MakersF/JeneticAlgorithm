@@ -1,10 +1,10 @@
 package com.ja.callables;
 
-public interface Evaluation<Individual> {
+public interface Evaluation<Chromosome> {
 	/**
-	 * Evaluates the current individual
-	 * @param a The individual to evaluate
-	 * @return The fitness of the individual
+	 * Evaluates the current chromosome
+	 * @param a The chromosome to evaluate
+	 * @return The fitness of the chromosome
 	 */
-	double evaluate(Individual a);
+	double evaluate(Chromosome chromosome);
 }

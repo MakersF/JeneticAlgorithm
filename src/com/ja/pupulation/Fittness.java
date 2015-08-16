@@ -1,34 +1,70 @@
 package com.ja.pupulation;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class Fittness<Individual> {
+public class Fittness<Chromosome> {
 
-	SortedSet<Fittness.FitnessEntry<Individual>> elements = new TreeSet<Fittness.FitnessEntry<Individual>>();
+	private final SortedSet<Fittness.FitnessEntry<Chromosome>> elements = new TreeSet<Fittness.FitnessEntry<Chromosome>>();
+	private final FitnessEntryPool<Chromosome> pool = new FitnessEntryPool<Chromosome>();
 
-	public void put(double fitness, Individual i) {
-		elements.add(new FitnessEntry<Individual>(fitness, i));
+	public void put(double fitness, Chromosome i) {
+		FitnessEntry<Chromosome> entry = pool.getOne(fitness, i);
+		synchronized (elements) {
+			elements.add(entry);
+		}
 	}
 
-	public SortedSet<Fittness.FitnessEntry<Individual>> getElements() {
+	public SortedSet<Fittness.FitnessEntry<Chromosome>> getElements() {
 		return elements;
 	}
 	
-	static public class FitnessEntry<Individual> implements Comparable<FitnessEntry<Individual>> {
+	public void clear() {
+		for(FitnessEntry<Chromosome> entry : elements) {
+			pool.recycle(entry);
+		}
+		elements.clear();
+	}
+
+	static public class FitnessEntry<Chromosome> implements Comparable<FitnessEntry<Chromosome>> {
 		public double fitness;
-		public Individual individual;
+		public Chromosome chromosome;
 		
-		public FitnessEntry(double pFitness, Individual pInd) {
+		public FitnessEntry(double pFitness, Chromosome chrom) {
 			fitness = pFitness;
-			individual = pInd;
+			chromosome = chrom;
 		}
 
 		@Override
-		public int compareTo(FitnessEntry<Individual> o) {
+		public int compareTo(FitnessEntry<Chromosome> o) {
 			return fitness > o.fitness ? -1 :
 					(fitness == o.fitness ? 0:
 											+1);
+		}
+	}
+
+	static public class FitnessEntryPool<Chromosome> {
+		Queue<FitnessEntry<Chromosome>> pool = new ArrayDeque<Fittness.FitnessEntry<Chromosome>>();
+
+		public FitnessEntry<Chromosome> getOne(double pFitness, Chromosome chrom) {
+			FitnessEntry<Chromosome> entry = null;
+			synchronized (pool) {
+				entry = (FitnessEntry<Chromosome>) pool.poll();
+			}
+
+			if(entry == null)
+				return new FitnessEntry<Chromosome>(pFitness, chrom);
+			entry.fitness = pFitness;
+			entry.chromosome = chrom;
+			return entry;
+		}
+
+		public void recycle(FitnessEntry<Chromosome> chrom) {
+			synchronized (pool) {
+				pool.add(chrom);
+			}
 		}
 	}
 }

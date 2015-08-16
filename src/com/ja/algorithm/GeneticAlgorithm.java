@@ -15,21 +15,21 @@ import com.ja.pupulation.Fittness;
 import com.ja.pupulation.Fittness.FitnessEntry;
 
 
-public class GeneticAlgorithm<Individual> {
+public class GeneticAlgorithm<Chromosome> {
 	
-	private Collection<Individual> mPopulation;
-	private Fittness<Individual> mFittness;
-	private Evaluation<Individual> mEvaluationFunction;
-	private Selection<Individual> mSelection;
-	private Crossover<Individual> mCrossover;
-	private float mCrossoverProbability;
-	private Mutate<Individual> mMutate;
-	private float mMutateProbability;
-	private Random mRand = new Random();
-	private EndCondition<Individual> mEndCondition;
-	private int mElitismNumber;
+	private Collection<Chromosome> mPopulation;
+	private final Fittness<Chromosome> mFittness = new Fittness<Chromosome>();
+	private final Evaluation<Chromosome> mEvaluationFunction;
+	private final Selection<Chromosome> mSelection;
+	private final Crossover<Chromosome> mCrossover;
+	private final float mCrossoverProbability;
+	private final Mutate<Chromosome> mMutate;
+	private final float mMutateProbability;
+	private final Random mRand = new Random();
+	private final EndCondition<Chromosome> mEndCondition;
+	private final int mElitismNumber;
 	
-	public GeneticAlgorithm(ProblemDescription<Individual> problemDescription) {
+	public GeneticAlgorithm(ProblemDescription<Chromosome> problemDescription) {
 		if(	problemDescription.mCrossoverFunction == null ||
 			problemDescription.mEndConditionFunction == null ||
 			problemDescription.mEvaluationFunction == null ||
@@ -55,15 +55,15 @@ public class GeneticAlgorithm<Individual> {
 	}
 	
 	private void evaluate() {
-		mFittness = new Fittness<Individual>();
-		for(Individual i : mPopulation) {
+		mFittness.clear();
+		for(Chromosome i : mPopulation) {
 			mFittness.put(mEvaluationFunction.evaluate(i), i);
 		}
 	}
 
-	private Individual generateNewOffspring() {
-		Parents<Individual> parents = mSelection.select(mFittness);
-		Individual offspring;
+	private Chromosome generateNewOffspring() {
+		Parents<Chromosome> parents = mSelection.select(mFittness);
+		Chromosome offspring;
 		boolean cross = mRand.nextFloat() <= mCrossoverProbability;
 		if(cross) {
 			offspring = mCrossover.cross(parents.getParentA(), parents.getParentB());
@@ -82,18 +82,18 @@ public class GeneticAlgorithm<Individual> {
 
 	private void newGeneration() {
 		int populationSize = mPopulation.size();
-		Collection<Individual> newPopulation = new LinkedList<Individual>();
+		Collection<Chromosome> newPopulation = new LinkedList<Chromosome>();
 		
 		// Preserve the best mElitismNumber Individuals
-		Iterator<FitnessEntry<Individual>> it = mFittness.getElements().iterator();
+		Iterator<FitnessEntry<Chromosome>> it = mFittness.getElements().iterator();
 		int elits = 0;
 		for(int i=0; i< mElitismNumber && it.hasNext(); i++, elits++) {
-			newPopulation.add(it.next().individual);
+			newPopulation.add(it.next().chromosome);
 		}
 		
 		mSelection.onSelectionStart(mFittness);
 		for(int i=0; i< populationSize - elits; i++) {
-			Individual offspring = generateNewOffspring();
+			Chromosome offspring = generateNewOffspring();
 			newPopulation.add(offspring);
 		}
 		mSelection.onSelectionEnd();
@@ -108,7 +108,7 @@ public class GeneticAlgorithm<Individual> {
 		}
 	}
 
-	public FitnessEntry<Individual> getBest() {
+	public FitnessEntry<Chromosome> getBest() {
 		return mFittness.getElements().first();
 	}
 }
