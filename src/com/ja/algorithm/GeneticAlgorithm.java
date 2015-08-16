@@ -16,7 +16,7 @@ import com.ja.pupulation.Fittness.FitnessEntry;
 
 
 public class GeneticAlgorithm<Chromosome> {
-	
+
 	private Collection<Chromosome> mPopulation;
 	private final Fittness<Chromosome> mFittness = new Fittness<Chromosome>();
 	private final Evaluation<Chromosome> mEvaluationFunction;
@@ -28,7 +28,7 @@ public class GeneticAlgorithm<Chromosome> {
 	private final Random mRand = new Random();
 	private final EndCondition<Chromosome> mEndCondition;
 	private final int mElitismNumber;
-	
+
 	public GeneticAlgorithm(ProblemDescription<Chromosome> problemDescription) {
 		if(	problemDescription.mCrossoverFunction == null ||
 			problemDescription.mEndConditionFunction == null ||
@@ -48,12 +48,12 @@ public class GeneticAlgorithm<Chromosome> {
 		mCrossover = problemDescription.mCrossoverFunction;
 		mMutate = problemDescription.mMutateFunction;
 		mEndCondition = problemDescription.mEndConditionFunction;
-		
+
 		mCrossoverProbability = Math.max(problemDescription.mCrossoverProbability, 0);
 		mMutateProbability = Math.max(problemDescription.mMutateProbability, 0);
 		mElitismNumber = Math.max(problemDescription.mElitismNumber, 0);
 	}
-	
+
 	private void evaluate() {
 		mFittness.clear();
 		for(Chromosome i : mPopulation) {
@@ -70,27 +70,27 @@ public class GeneticAlgorithm<Chromosome> {
 		} else {
 			offspring = parents.getParentA();
 		}
-		
+
 		boolean mutate = mRand.nextFloat() <= mMutateProbability;
 		if(mutate) {
 			// if the offspring is just one of the parents (not crossed) when crossing get a copy and not modify it
 			offspring = mMutate.mutate(offspring, !cross);
 		}
-		
+
 		return offspring;
 	}
 
 	private void newGeneration() {
 		int populationSize = mPopulation.size();
 		Collection<Chromosome> newPopulation = new LinkedList<Chromosome>();
-		
+
 		// Preserve the best mElitismNumber Individuals
 		Iterator<FitnessEntry<Chromosome>> it = mFittness.getElements().iterator();
 		int elits = 0;
 		for(int i=0; i< mElitismNumber && it.hasNext(); i++, elits++) {
 			newPopulation.add(it.next().chromosome);
 		}
-		
+
 		mSelection.onSelectionStart(mFittness);
 		for(int i=0; i< populationSize - elits; i++) {
 			Chromosome offspring = generateNewOffspring();
