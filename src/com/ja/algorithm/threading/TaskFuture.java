@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 
 public class TaskFuture<V> implements Future<V> {
 
-	private Object monitor = new Object();
 	private V result = null;
 	private Exception exception = null;
 	private boolean resultSubmitted = false;
@@ -34,14 +33,14 @@ public class TaskFuture<V> implements Future<V> {
 		if(!resultSubmitted && exception == null) {
 			result = res;
 			resultSubmitted = true;
-			monitor.notifyAll();
+			this.notifyAll();
 		}
 	}
 
 	synchronized void setException(Exception e) {
 		if(!resultSubmitted && exception == null) {
 			exception = e;
-			monitor.notifyAll();
+			this.notifyAll();
 		}
 	}
 
@@ -55,7 +54,7 @@ public class TaskFuture<V> implements Future<V> {
 		if(run)
 			return false;
 		cancelled = true;
-		monitor.notifyAll();
+		this.notifyAll();
 		return true;
 	}
 
@@ -65,7 +64,7 @@ public class TaskFuture<V> implements Future<V> {
 			throw new CancellationException();
 		}
 		while(!resultSubmitted && exception == null) {
-			monitor.wait();
+			this.wait();
 		}
 		if(exception != null)
 			throw new ExecutionException(exception);
@@ -83,7 +82,7 @@ public class TaskFuture<V> implements Future<V> {
 				throw new TimeoutException();
 			}
 			long startTime = System.nanoTime();
-			monitor.wait(unit.toMillis(time));
+			this.wait(unit.toMillis(time));
 			total_wait_nanos += System.nanoTime() - startTime;
 		}
 		if(exception != null)
