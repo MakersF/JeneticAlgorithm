@@ -3,8 +3,8 @@ package com.ja.algorithm.selection;
 import java.util.Iterator;
 
 import com.ja.callables.Selection;
-import com.ja.pupulation.Fittness;
-import com.ja.pupulation.Fittness.FitnessEntry;
+import com.ja.pupulation.Fitness;
+import com.ja.pupulation.Fitness.FitnessEntry;
 
 public class RankSelection<Chromosome> implements Selection<Chromosome>{
 	/**
@@ -12,12 +12,12 @@ public class RankSelection<Chromosome> implements Selection<Chromosome>{
 	 */
 	
 	@Override
-	public void onSelectionStart(Fittness<Chromosome> population) {
+	public void onSelectionStart(Fitness<Chromosome> population) {
 		
 	}
 
 	@Override
-	public com.ja.callables.Selection.Parents<Chromosome> select(Fittness<Chromosome> population) {
+	public com.ja.callables.Selection.Parents<Chromosome> select(Fitness<Chromosome> population) {
 		Chromosome a = pickOne(population);
 		Chromosome b = pickOne(population);
 		return new Parents<Chromosome>(a,b);
@@ -28,7 +28,7 @@ public class RankSelection<Chromosome> implements Selection<Chromosome>{
 		
 	}
 
-	private Chromosome pickOne(Fittness<Chromosome> population) {
+	private Chromosome pickOne(Fitness<Chromosome> population) {
 		// threshold picked in range [0, N*(N+1)/2], which is the sum 1..N
 		int N = population.getElements().size();
 		float threshold = (int) (Math.random() * (N * (N +1) / 2));

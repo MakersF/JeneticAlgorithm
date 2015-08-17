@@ -1,7 +1,7 @@
 package com.ja.algorithm.endcondition;
 
 import com.ja.callables.EndCondition;
-import com.ja.pupulation.Fittness;
+import com.ja.pupulation.Fitness;
 
 public class GenerationsEndCondition<Chromosome> implements EndCondition<Chromosome> {
 
@@ -12,7 +12,7 @@ public class GenerationsEndCondition<Chromosome> implements EndCondition<Chromos
 	}
 
 	@Override
-	public boolean shouldEnd(Fittness<Chromosome> fittness) {
+	public boolean shouldEnd(Fitness<Chromosome> fittness) {
 		counter--;
 		if (counter == 0)
 			return true;

@@ -21,4 +21,5 @@ public class ProblemDescription<Chromosome> {
 	public float mCrossoverProbability;
 	public float mMutateProbability;
 	public int mElitismNumber;
+	public int numberOfThreads = Runtime.getRuntime().availableProcessors();
 }

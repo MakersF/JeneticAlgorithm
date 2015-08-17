@@ -1,6 +1,6 @@
 package com.ja.callables;
 
-import com.ja.pupulation.Fittness;
+import com.ja.pupulation.Fitness;
 
 public interface EndCondition<Choromosome> {
 	/**
@@ -8,5 +8,5 @@ public interface EndCondition<Choromosome> {
 	 * @param fittness The fitness of the current population of chromosomes
 	 * @return True if the algorithm should stop running, false otherwise
 	 */
-	boolean shouldEnd(Fittness<Choromosome> fittness);
+	boolean shouldEnd(Fitness<Choromosome> fittness);
 }

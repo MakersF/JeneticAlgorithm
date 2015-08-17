@@ -1,33 +1,41 @@
 package com.ja.algorithm;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Random;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
+import com.ja.algorithm.executors.EvaluationExecutors;
+import com.ja.algorithm.executors.GenerationExecutor;
 import com.ja.callables.Crossover;
 import com.ja.callables.EndCondition;
 import com.ja.callables.Evaluation;
 import com.ja.callables.Mutate;
 import com.ja.callables.Selection;
-import com.ja.callables.Selection.Parents;
-import com.ja.pupulation.Fittness;
-import com.ja.pupulation.Fittness.FitnessEntry;
+import com.ja.pupulation.Fitness;
+import com.ja.pupulation.Fitness.FitnessEntry;
 
 
 public class GeneticAlgorithm<Chromosome> {
 
 	private Collection<Chromosome> mPopulation;
-	private final Fittness<Chromosome> mFittness = new Fittness<Chromosome>();
+	private final Fitness<Chromosome> mFitness = new Fitness<Chromosome>();
 	private final Evaluation<Chromosome> mEvaluationFunction;
 	private final Selection<Chromosome> mSelection;
 	private final Crossover<Chromosome> mCrossover;
 	private final float mCrossoverProbability;
 	private final Mutate<Chromosome> mMutate;
 	private final float mMutateProbability;
-	private final Random mRand = new Random();
 	private final EndCondition<Chromosome> mEndCondition;
 	private final int mElitismNumber;
+	private final int numberOfThreads;
+	private final ExecutorService executor;
 
 	public GeneticAlgorithm(ProblemDescription<Chromosome> problemDescription) {
 		if(	problemDescription.mCrossoverFunction == null ||
@@ -52,32 +60,34 @@ public class GeneticAlgorithm<Chromosome> {
 		mCrossoverProbability = Math.max(problemDescription.mCrossoverProbability, 0);
 		mMutateProbability = Math.max(problemDescription.mMutateProbability, 0);
 		mElitismNumber = Math.max(problemDescription.mElitismNumber, 0);
+		
+		numberOfThreads = Math.max(problemDescription.numberOfThreads, 1);
+		executor = Executors.newFixedThreadPool(numberOfThreads);
 	}
 
 	private void evaluate() {
-		mFittness.clear();
-		for(Chromosome i : mPopulation) {
-			mFittness.put(mEvaluationFunction.evaluate(i), i);
+		mFitness.clear();
+		// Every thread evaluates one numberOfThreads-th of the total population
+		// The population collection needs to have PREDICTABLE ITERATION ORDER
+		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>(numberOfThreads);
+		for(int i=0; i < numberOfThreads; i++) {
+			tasks.add(new EvaluationExecutors<Chromosome>(mPopulation.iterator(), numberOfThreads, i, mEvaluationFunction, mFitness));
 		}
-	}
-
-	private Chromosome generateNewOffspring() {
-		Parents<Chromosome> parents = mSelection.select(mFittness);
-		Chromosome offspring;
-		boolean cross = mRand.nextFloat() <= mCrossoverProbability;
-		if(cross) {
-			offspring = mCrossover.cross(parents.getParentA(), parents.getParentB());
-		} else {
-			offspring = parents.getParentA();
+		while(true) {
+			try {
+				List<Future<Void>> futures = new ArrayList<Future<Void>>(numberOfThreads);
+				for(Callable<Void> evalTask : tasks)
+					futures.add(executor.submit(evalTask));
+				
+				for(Future<Void> fut : futures)
+					fut.get();
+				break;
+			} catch (InterruptedException e) {
+				throw new RuntimeException("Should not happen", e);
+			} catch (ExecutionException e) {
+				throw new RuntimeException("Should not happen", e);
+			}
 		}
-
-		boolean mutate = mRand.nextFloat() <= mMutateProbability;
-		if(mutate) {
-			// if the offspring is just one of the parents (not crossed) when crossing get a copy and not modify it
-			offspring = mMutate.mutate(offspring, !cross);
-		}
-
-		return offspring;
 	}
 
 	private void newGeneration() {
@@ -85,16 +95,29 @@ public class GeneticAlgorithm<Chromosome> {
 		Collection<Chromosome> newPopulation = new LinkedList<Chromosome>();
 
 		// Preserve the best mElitismNumber Individuals
-		Iterator<FitnessEntry<Chromosome>> it = mFittness.getElements().iterator();
+		Iterator<FitnessEntry<Chromosome>> it = mFitness.getElements().iterator();
 		int elits = 0;
 		for(int i=0; i< mElitismNumber && it.hasNext(); i++, elits++) {
 			newPopulation.add(it.next().chromosome);
 		}
 
-		mSelection.onSelectionStart(mFittness);
-		for(int i=0; i< populationSize - elits; i++) {
-			Chromosome offspring = generateNewOffspring();
-			newPopulation.add(offspring);
+		mSelection.onSelectionStart(mFitness);
+		int generatedPerThread = (int) Math.ceil(((populationSize - elits) / numberOfThreads));
+		List<Callable<Collection<Chromosome>>> tasks = new ArrayList<Callable<Collection<Chromosome>>>(numberOfThreads);
+		for(int i=0; i< numberOfThreads; i++) {
+			tasks.add(new GenerationExecutor<Chromosome>(mFitness, mSelection, mCrossover, mCrossoverProbability, mMutate, mMutateProbability, generatedPerThread));
+		}
+		while(true) {
+			try {
+				for(Future<Collection<Chromosome>> coll : executor.invokeAll(tasks)) {
+					newPopulation.addAll(coll.get());
+				}
+				break;
+			} catch (InterruptedException e) {
+				throw new RuntimeException("Should not happen");
+			} catch (ExecutionException e) {
+				throw new RuntimeException("Should not happen");
+			}
 		}
 		mSelection.onSelectionEnd();
 		mPopulation = newPopulation;
@@ -103,12 +126,13 @@ public class GeneticAlgorithm<Chromosome> {
 
 	public void run() {
 		evaluate();
-		while(!mEndCondition.shouldEnd(mFittness)) {
+		while(!mEndCondition.shouldEnd(mFitness)) {
 			newGeneration();
 		}
+		executor.shutdown();
 	}
 
 	public FitnessEntry<Chromosome> getBest() {
-		return mFittness.getElements().first();
+		return mFitness.getElements().first();
 	}
 }

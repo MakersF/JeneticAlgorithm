@@ -1,7 +1,7 @@
 package com.ja.algorithm.endcondition;
 
 import com.ja.callables.EndCondition;
-import com.ja.pupulation.Fittness;
+import com.ja.pupulation.Fitness;
 
 public class FitnessEndCondition<Chromosome> implements EndCondition<Chromosome>{
 
@@ -11,7 +11,7 @@ public class FitnessEndCondition<Chromosome> implements EndCondition<Chromosome>
 	}
 	
 	@Override
-	public boolean shouldEnd(Fittness<Chromosome> fittness) {
+	public boolean shouldEnd(Fitness<Chromosome> fittness) {
 		if(fittness.getElements().first().fitness >= targetFitness)
 			return true;
 		return false;

@@ -5,9 +5,9 @@ import java.util.Queue;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class Fittness<Chromosome> {
+public class Fitness<Chromosome> {
 
-	private final SortedSet<Fittness.FitnessEntry<Chromosome>> elements = new TreeSet<Fittness.FitnessEntry<Chromosome>>();
+	private final SortedSet<Fitness.FitnessEntry<Chromosome>> elements = new TreeSet<Fitness.FitnessEntry<Chromosome>>();
 	private final FitnessEntryPool<Chromosome> pool = new FitnessEntryPool<Chromosome>();
 
 	public void put(double fitness, Chromosome i) {
@@ -17,7 +17,7 @@ public class Fittness<Chromosome> {
 		}
 	}
 
-	public SortedSet<Fittness.FitnessEntry<Chromosome>> getElements() {
+	public SortedSet<Fitness.FitnessEntry<Chromosome>> getElements() {
 		return elements;
 	}
 	
@@ -46,12 +46,12 @@ public class Fittness<Chromosome> {
 	}
 
 	static public class FitnessEntryPool<Chromosome> {
-		Queue<FitnessEntry<Chromosome>> pool = new ArrayDeque<Fittness.FitnessEntry<Chromosome>>();
+		Queue<FitnessEntry<Chromosome>> pool = new ArrayDeque<Fitness.FitnessEntry<Chromosome>>();
 
 		public FitnessEntry<Chromosome> getOne(double pFitness, Chromosome chrom) {
 			FitnessEntry<Chromosome> entry = null;
 			synchronized (pool) {
-				entry = (FitnessEntry<Chromosome>) pool.poll();
+				entry = pool.poll();
 			}
 
 			if(entry == null)
