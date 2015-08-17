@@ -3,6 +3,7 @@ package com.ja.algorithm.threading;
 import java.util.ArrayDeque;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class WorkerThread extends Thread {
 
@@ -33,12 +34,19 @@ public class WorkerThread extends Thread {
 		}
 	}
 
-	public void awaitTermination() throws InterruptedException {
-		synchronized (monitor) {
-			while(!terminated) {
+	public boolean awaitTermination(long time, TimeUnit unit) throws InterruptedException {
+		long total_wait_nanos = 0;
+		while(!terminated) {
+			if(total_wait_nanos >= unit.toNanos(time)) {
+				return false;
+			}
+			long startTime = System.nanoTime();
+			synchronized (monitor) {
 				monitor.wait();
 			}
+			total_wait_nanos += System.nanoTime() - startTime;
 		}
+		return true;
 	}
 
 	public void shutdown() {
@@ -51,7 +59,7 @@ public class WorkerThread extends Thread {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-		while(!shutdown || running) {
+		while(true) {
 			FutureTaskPair<Object> task = null;
 			synchronized (monitor) {
 				// Check if there is a task waiting in the queue
@@ -60,13 +68,17 @@ public class WorkerThread extends Thread {
 					 running = true;
 			}
 			if(task != null) {
-				// execute the current task
 				executeTask(task);
 			} else {
-				// If there is no more task to execute wait for some task to be submitted
+				// If there is no more task to execute
+				// wait for some task to be submitted
 				try {
 					synchronized (monitor) {
 						running = false;
+						// If shutdown is set to true terminate instead of waiting
+						if(shutdown) {
+							break;
+						}
 						monitor.wait();
 					}
 				} catch (InterruptedException e) {
