@@ -19,9 +19,12 @@ The library provides choices for the selection algorithm and the end condition, 
 
 ####**Initial Population**
 Initialize (usually randomly) your chromosome instances to provide a population from which to start the evolution process. This needs to implement the  ```Collection<Chromosome>``` interface, where chromosome is the class you'll use as chromosome.
+**NOTE:** The iteration order of the collection must be predictable
 
 ####**Fitness Function**
 Provide a function which, given a chromosome, returns it's fitness: how good a solution it is. You can do so by implementing the ```Evaluation``` interface.
+
+**NOTE:** The function will be called in parallel threads without being synchronized by the algorithm. Be wary of that! If it's a [pure function](http://www.sitepoint.com/functional-programming-pure-functions/) you won't have a problem.
 
 ####**Selection Function**
 This function specifies how two chromosomes are picked from the current population to generate a new offspring. At the moment the library provides two implementations:
@@ -34,11 +37,16 @@ The default is Rank Selection.
 
 ####**Genetic Operators: Crossover**
 This function will get two chromosomes as input and return a new chromosome. Define here how a new offspring is generated from two parents. Implement the ```Crossover``` interface.
-**NOTE:** remember to set the crossover probability when you define the problem! It's usually in the 80%-90% range.
+
+**NOTE 1:** remember to set the crossover probability when you define the problem! It's usually in the 80%-90% range.
+**NOTE 2:** The function will be called in parallel threads without being synchronized by the algorithm. Be wary of that! If it's a [pure function](http://www.sitepoint.com/functional-programming-pure-functions/) you won't have a problem.
 
 ####**Genetic Operators: Mutation**
 A single chromosome may need to be mutated. This function specifies how that happens. It takes a chromosome and returns a chromosome which is the mutation of the input one. Implement the ```Mutate``` interface.
-**NOTE:** remember to set the mutate probability when you define the problem! It's usually in the 5%-20% range.
+
+**NOTE 1:** remember to set the mutate probability when you define the problem! It's usually in the 5%-20% range.
+
+**NOTE 2:** The function will be called in parallel threads without being synchronized by the algorithm. Be wary of that! If it's a [pure function](http://www.sitepoint.com/functional-programming-pure-functions/) you won't have a problem.
 
 ####**End Condition**
 The algorithm need to know when to stop. In this case the library provides two implementations:
@@ -52,8 +60,9 @@ The default is Generation Condition with a N equal to 1000.
 Elitism consist on adding the best chromosomes from the previous population to the next one. You can set it during the problem definition. By default it is disabled (set to 0), but you can set the number of chromosomes to bring to the next generation.
 **NOTE:** high values compared to the size of the population will make the algorithm converge slower or stop on local optimals.
 
+####**Multithreading**
+The evaluation, crossover and mutation steps are done in parallel. You can specify the number of threads to use in the problem description. By default it is equal to the number of (logic) cores of the machine the VM is running on. You can set it to 1 to make the execution serial.
 
-----------
 
 ###**Problem Definition**
 Once you implemented all the needed parts, you can use the ```ProblemDescription``` class to put together the classes you just wrote, and instantiate a ```GeneticAlgorithm```.
