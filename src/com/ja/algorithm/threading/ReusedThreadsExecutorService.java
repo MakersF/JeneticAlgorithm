@@ -87,13 +87,16 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 	@Override
 	public void shutdown() {
 		shutdown = true;
+		for(WorkerThread wt : threads) {
+			wt.shutdown();
+		}
 	}
 
 	@Override
 	public List<Runnable> shutdownNow() {
 		shutdown();
 		for(WorkerThread wt : threads) {
-			wt.shutdown();
+			wt.shutdownNow();
 		}
 
 		List<Runnable> remaining_tasks = new ArrayList<Runnable>(tasks.size());
