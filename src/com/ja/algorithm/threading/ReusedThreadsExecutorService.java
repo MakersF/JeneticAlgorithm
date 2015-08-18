@@ -32,6 +32,7 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 			while(true) {
 				try {
 					tasks.put(command);
+					break;
 				} catch (InterruptedException e) {
 					continue;
 				}
