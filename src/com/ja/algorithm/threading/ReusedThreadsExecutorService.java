@@ -15,6 +15,9 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 	private boolean terminated = false;
 
 	public ReusedThreadsExecutorService(int numberOfThreads) {
+		if(numberOfThreads <= 0) {
+			throw new IllegalArgumentException("numberOfThreads must be greater than 0.");
+		}
 		threads = new WorkerThread[numberOfThreads];
 		for(int i=0; i < numberOfThreads; i++) {
 			threads[i] = new WorkerThread(tasks);
@@ -23,6 +26,8 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 	}
 	@Override
 	public void execute(Runnable command) {
+		if(command == null)
+			throw new NullPointerException("command can not be null");
 		if(!shutdown) {
 			while(true) {
 				try {
@@ -36,6 +41,10 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 
 	@Override
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+		if(timeout < 0)
+			throw new IllegalArgumentException("Timeout needs to be a positive long");
+		if(unit == null)
+			throw new NullPointerException("unit can nto be null");
 		if(terminated)
 			return true;
 		long remaining = unit.toNanos(timeout);
