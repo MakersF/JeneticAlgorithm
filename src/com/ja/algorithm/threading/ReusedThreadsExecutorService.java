@@ -51,12 +51,13 @@ public class ReusedThreadsExecutorService extends AbstractExecutorService {
 		long remaining = unit.toNanos(timeout);
 		for(WorkerThread wt : threads) {
 			long old = System.nanoTime();
-			if(!wt.awaitTermination(remaining, TimeUnit.NANOSECONDS))
-				return false;
-			long now = System.nanoTime();
-			remaining -= now - old;
-			if(remaining < 0 ) {
-				return false;
+			while(!wt.awaitTermination(remaining, TimeUnit.NANOSECONDS)) {
+				long now = System.nanoTime();
+				remaining -= now - old;
+				if(remaining < 0 ) {
+					return false;
+				}
+				old = System.nanoTime();
 			}
 		}
 		terminated = true;
