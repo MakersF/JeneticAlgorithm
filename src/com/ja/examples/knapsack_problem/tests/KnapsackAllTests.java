@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ KnapsackCrossoverTest.class, KnapsackMutateTest.class })
+@SuiteClasses({ KnapsackCrossoverTest.class, KnapsackMutateTest.class, KnapsackPopulationTest.class})
 public class KnapsackAllTests {
 
 }
