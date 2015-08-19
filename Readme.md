@@ -74,17 +74,24 @@ From its main you can see how easy it is to use the library.
 
 ```java
 ProblemDescription<KnapsackChromosome> problem = new ProblemDescription<KnapsackChromosome>();
-		KnapsackEvalCrossMutate evaluateCrossoverMutate = new KnapsackEvalCrossMutate();
-		problem.mCrossoverFunction = evaluateCrossoverMutate;
-		problem.mEvaluationFunction = evaluateCrossoverMutate;
-		problem.mMutateFunction = evaluateCrossoverMutate;
-		problem.mInitialPopulation = KnapsackChromosome.initialPopulation(20);
-		problem.mCrossoverProbability = 0.8f;
-		problem.mMutateProbability = 0.15f;
-		problem.mElitismNumber = 3;
+KnapsackEvalCrossMutate evaluateCrossoverMutate = new KnapsackEvalCrossMutate();
+problem.mCrossoverFunction = evaluateCrossoverMutate;
+problem.mEvaluationFunction = evaluateCrossoverMutate;
+problem.mMutateFunction = evaluateCrossoverMutate;
+problem.mInitialPopulation = KnapsackChromosome.initialPopulation(20);
+problem.mCrossoverProbability = 0.8f;
+problem.mMutateProbability = 0.15f;
+problem.mElitismNumber = 3;
+//problem.numberOfThreads = 1;
 
-		GeneticAlgorithm<KnapsackChromosome> solver = new GeneticAlgorithm<KnapsackChromosome>(problem);
-		solver.run();
-		FitnessEntry<KnapsackChromosome> best = solver.getBest();
+GeneticAlgorithm<KnapsackChromosome> solver = new GeneticAlgorithm<KnapsackChromosome>(problem);
+solver.run();
+FitnessEntry<KnapsackChromosome> best = solver.getBest();
 ```
 
+####**Tests**
+The callables need to provide some properties (the most important one is to return different objects when requested to). To help you ensure this property there are some abstract test classes you can extend to easily test your classes.
+You can find them in:
+
+- ```com.ja.tests.callables.AbstractCrossoverTests```
+- ```com.ja.tests.callables.AbstractCrossoverTests```
