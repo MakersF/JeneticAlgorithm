@@ -23,7 +23,7 @@ Initialize (usually randomly) your chromosome instances to provide a population 
 **NOTE:** The iteration order of the collection must be predictable (meaning that multiple iterators will return the same items in the same order if the collection doesn't get not modified after the iterators are produced)
 
 ####**Fitness Function**
-Provide a function which, given a chromosome, returns it's fitness: how good a solution it is. You can do so by implementing the ```Evaluation``` interface.
+Provide a function which, given a chromosome, returns it's fitness: how good a solution it is. You can do so by implementing the [```Evaluation```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/callables/Evaluation.java) interface.
 
 **NOTE:** The function will be called in parallel threads without being synchronized by the algorithm. Be wary of that! If it's a [pure function](http://www.sitepoint.com/functional-programming-pure-functions/) you won't have a problem.
 
@@ -33,18 +33,18 @@ This function specifies how two chromosomes are picked from the current populati
  - Roulette Wheel Selection
  - Rank Selection
 
-If your specific problem needs a different selection strategy you can implement it by providing a ```Selection``` implementation.
+If your specific problem needs a different selection strategy you can implement it by providing a [```Selection```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/callables/Selection.java) implementation.
 The default is Rank Selection.
 
 ####**Genetic Operators: Crossover**
-This function will get two chromosomes as input and return a new chromosome. Define here how a new offspring is generated from two parents. Implement the ```Crossover``` interface.
+This function will get two chromosomes as input and return a new chromosome. Define here how a new offspring is generated from two parents. Implement the [```Crossover```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/callables/Crossover.java) interface.
 
 **NOTE 1:** remember to set the crossover probability when you define the problem! It's usually in the 80%-90% range.
 
 **NOTE 2:** The function will be called in parallel threads without being synchronized by the algorithm. Be wary of that! If it's a [pure function](http://www.sitepoint.com/functional-programming-pure-functions/) you won't have a problem.
 
 ####**Genetic Operators: Mutation**
-A single chromosome may need to be mutated. This function specifies how that happens. It takes a chromosome and returns a chromosome which is the mutation of the input one. Implement the ```Mutate``` interface.
+A single chromosome may need to be mutated. This function specifies how that happens. It takes a chromosome and returns a chromosome which is the mutation of the input one. Implement the [```Mutate```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/callables/Mutate.java) interface.
 
 **NOTE 1:** remember to set the mutate probability when you define the problem! It's usually in the 5%-20% range.
 
@@ -59,7 +59,7 @@ The algorithm need to know when to stop. In this case the library provides two i
 The default is Generation Condition with a N equal to 1000.
 
 ####**Elitism**
-Elitism consist on adding the best chromosomes from the previous population to the next one. You can set it during the problem definition. By default it is disabled (set to 0), but you can set the number of chromosomes to bring to the next generation.
+[Elitism](https://en.wikipedia.org/wiki/Genetic_algorithm#Elitism) consist on adding the best chromosomes from the previous population to the next one. You can set it during the problem definition. By default it is disabled (set to 0), but you can set the number of chromosomes to bring to the next generation.
 
 **NOTE:** high values compared to the size of the population will make the algorithm converge slower or stop on local optimals.
 
@@ -68,7 +68,7 @@ The evaluation, crossover and mutation steps are done in parallel. You can speci
 
 
 ###**Problem Definition**
-Once you implemented all the needed parts, you can use the ```ProblemDescription``` class to put together the classes you just wrote, and instantiate a ```GeneticAlgorithm```.
+Once you implemented all the needed parts, you can use the [```ProblemDescription```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/algorithm/ProblemDescription.java) class to put together the classes you just wrote, and instantiate a [```GeneticAlgorithm```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/algorithm/GeneticAlgorithm.java).
 From there it is as simple as calling ```run()``` and then ```getBest()``` to obtain your solution.
 
 ###**Examples**
@@ -96,5 +96,6 @@ FitnessEntry<KnapsackChromosome> best = solver.getBest();
 The callables need to provide some properties (the most important one is to return different objects when requested to). To help you ensure this property there are some abstract test classes you can extend to easily test your classes.
 You can find them in:
 
-- ```com.ja.tests.callables.AbstractCrossoverTests```
-- ```com.ja.tests.callables.AbstractCrossoverTests```
+- [```com.ja.tests.callables.AbstractInitialPopulationTest```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/tests/callables/AbstractInitialPopulationTest.java)
+- [```com.ja.tests.callables.AbstractCrossoverTests```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/tests/callables/AbstractCrossoverTests.java)
+- [```com.ja.tests.callables.AbstractMutateTests```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/tests/callables/AbstractMutateTest.java)
