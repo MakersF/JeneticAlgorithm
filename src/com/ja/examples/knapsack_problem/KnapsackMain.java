@@ -8,7 +8,6 @@ import com.ja.pupulation.Fitness.FitnessEntry;
 public class KnapsackMain {
 
 	public static void main(String[] args) {
-		
 		ProblemDescription<KnapsackChromosome> problem = new ProblemDescription<KnapsackChromosome>();
 		KnapsackEvalCrossMutate evaluateCrossoverMutate = new KnapsackEvalCrossMutate();
 		problem.mCrossoverFunction = evaluateCrossoverMutate;
@@ -26,6 +25,5 @@ public class KnapsackMain {
 		FitnessEntry<KnapsackChromosome> best = solver.getBest();
 		
 		System.out.println("" + best.fitness + " - " + best.chromosome);
-		
 	}
 }
