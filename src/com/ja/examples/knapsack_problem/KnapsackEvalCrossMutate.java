@@ -44,7 +44,7 @@ public class KnapsackEvalCrossMutate implements Evaluation<KnapsackChromosome>, 
 		}
 		int index = (int) (Math.random() * ret.picked.length);
 		ret.picked[index] ^= true;
-		return i;
+		return ret;
 	}
 
 	private KnapsackChromosome copy(KnapsackChromosome i) {
