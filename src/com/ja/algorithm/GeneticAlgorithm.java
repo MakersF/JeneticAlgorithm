@@ -75,17 +75,11 @@ public class GeneticAlgorithm<Chromosome> {
 		}
 		while(true) {
 			try {
-				List<Future<Void>> futures = new ArrayList<Future<Void>>(numberOfThreads);
-				for(Callable<Void> evalTask : tasks)
-					futures.add(executor.submit(evalTask));
-				
-				for(Future<Void> fut : futures)
-					fut.get();
+				executor.invokeAll(tasks);
 				break;
 			} catch (InterruptedException e) {
-				throw new RuntimeException("Should not happen", e);
-			} catch (ExecutionException e) {
-				throw new RuntimeException("Should not happen", e);
+				mFitness.clear();
+				continue;
 			}
 		}
 	}
@@ -114,7 +108,7 @@ public class GeneticAlgorithm<Chromosome> {
 				}
 				break;
 			} catch (InterruptedException e) {
-				throw new RuntimeException("Should not happen");
+				continue;
 			} catch (ExecutionException e) {
 				throw new RuntimeException("Should not happen");
 			}
