@@ -13,14 +13,13 @@ public class KnapsackChromosome {
 	static public int[] weight_per_item = {3,2,2,4};
 	
 	static public int knapsack_max_weigth = 4;
-	
+	static private Random RANDOM = new Random();
 	boolean picked[];
 	
 	public KnapsackChromosome() {
 		picked = new boolean[number_of_objects];
-		Random r = new Random();
 		for(int i=0; i < number_of_objects; i++) {
-			picked[i] = r.nextBoolean();
+			picked[i] = RANDOM.nextBoolean();
 		}
 	}
 	
