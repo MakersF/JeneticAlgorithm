@@ -16,6 +16,7 @@ import com.ja.callables.Crossover;
 import com.ja.callables.EndCondition;
 import com.ja.callables.Evaluation;
 import com.ja.callables.Mutate;
+import com.ja.callables.Recycler;
 import com.ja.callables.Selection;
 import com.ja.pupulation.Fitness;
 import com.ja.pupulation.Fitness.FitnessEntry;
@@ -32,6 +33,7 @@ public class GeneticAlgorithm<Chromosome> {
 	private final Mutate<Chromosome> mMutate;
 	private final float mMutateProbability;
 	private final EndCondition<Chromosome> mEndCondition;
+	private final Recycler<Chromosome> mRecycler;
 	private final int mElitismNumber;
 	private final int numberOfThreads;
 	private final ExecutorService executor;
@@ -58,6 +60,7 @@ public class GeneticAlgorithm<Chromosome> {
 		mCrossover = problemDescription.mCrossoverFunction;
 		mMutate = problemDescription.mMutateFunction;
 		mEndCondition = problemDescription.mEndConditionFunction;
+		mRecycler = problemDescription.mRecycler;
 
 		mCrossoverProbability = Math.max(problemDescription.mCrossoverProbability, 0);
 		mMutateProbability = Math.max(problemDescription.mMutateProbability, 0);
@@ -87,6 +90,12 @@ public class GeneticAlgorithm<Chromosome> {
 
 	private void newGeneration() {
 		int populationSize = mPopulation.size();
+		// Recycle elements before being cleared
+		if(mRecycler != null) {
+			for(Chromosome c : mPopulation) {
+				mRecycler.recylce(c);
+			}
+		}
 		mPopulation.clear();
 
 		// Preserve the best mElitismNumber Individuals

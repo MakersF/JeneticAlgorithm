@@ -8,6 +8,7 @@ import com.ja.callables.Crossover;
 import com.ja.callables.EndCondition;
 import com.ja.callables.Evaluation;
 import com.ja.callables.Mutate;
+import com.ja.callables.Recycler;
 import com.ja.callables.Selection;
 
 public class ProblemDescription<Chromosome> {
@@ -18,6 +19,7 @@ public class ProblemDescription<Chromosome> {
 	public Crossover<Chromosome> mCrossoverFunction;
 	public Mutate<Chromosome> mMutateFunction;
 	public EndCondition<Chromosome> mEndConditionFunction = new GenerationsEndCondition<Chromosome>(1000);
+	public Recycler<Chromosome> mRecycler = null;
 	public float mCrossoverProbability;
 	public float mMutateProbability;
 	public int mElitismNumber;
