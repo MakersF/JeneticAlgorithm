@@ -20,8 +20,6 @@ The library provides choices for the selection algorithm and the end condition, 
 ####**Initial Population**
 Initialize (usually randomly) your chromosome instances to provide a population from which to start the evolution process. This needs to implement the  ```Collection<Chromosome>``` interface, where chromosome is the class you'll use as chromosome.
 
-**NOTE:** The iteration order of the collection must be predictable (meaning that multiple iterators will return the same items in the same order if the collection doesn't get not modified after the iterators are produced)
-
 ####**Fitness Function**
 Provide a function which, given a chromosome, returns it's fitness: how good a solution it is. You can do so by implementing the [```Evaluation```](https://github.com/MakersF/JeneticAlgorithm/blob/master/src/com/ja/callables/Evaluation.java) interface.
 

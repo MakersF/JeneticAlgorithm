@@ -3,7 +3,6 @@ package com.ja.algorithm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -50,7 +49,10 @@ public class GeneticAlgorithm<Chromosome> {
 		if( problemDescription.mInitialPopulation.size() < 2  ) {
 			throw new IllegalArgumentException("The initial population must be have more than 1 individual");
 		}
-		mPopulation = problemDescription.mInitialPopulation;
+		int populationSize = problemDescription.mInitialPopulation.size();
+		mPopulation = new ArrayList<Chromosome>(populationSize);
+		mPopulation.addAll(problemDescription.mInitialPopulation);
+
 		mEvaluationFunction = problemDescription.mEvaluationFunction;
 		mSelection = problemDescription.mSelectionFunction;
 		mCrossover = problemDescription.mCrossoverFunction;
@@ -68,7 +70,6 @@ public class GeneticAlgorithm<Chromosome> {
 	private void evaluate() {
 		mFitness.clear();
 		// Every thread evaluates one numberOfThreads-th of the total population
-		// The population collection needs to have PREDICTABLE ITERATION ORDER
 		List<Callable<Void>> tasks = new ArrayList<Callable<Void>>(numberOfThreads);
 		for(int i=0; i < numberOfThreads; i++) {
 			tasks.add(new EvaluationExecutors<Chromosome>(mPopulation.iterator(), numberOfThreads, i, mEvaluationFunction, mFitness));
@@ -86,13 +87,13 @@ public class GeneticAlgorithm<Chromosome> {
 
 	private void newGeneration() {
 		int populationSize = mPopulation.size();
-		Collection<Chromosome> newPopulation = new LinkedList<Chromosome>();
+		mPopulation.clear();
 
 		// Preserve the best mElitismNumber Individuals
 		Iterator<FitnessEntry<Chromosome>> it = mFitness.getElements().iterator();
 		int elits = 0;
 		for(int i=0; i< mElitismNumber && it.hasNext(); i++, elits++) {
-			newPopulation.add(it.next().chromosome);
+			mPopulation.add(it.next().chromosome);
 		}
 
 		mSelection.onSelectionStart(mFitness);
@@ -104,7 +105,7 @@ public class GeneticAlgorithm<Chromosome> {
 		while(true) {
 			try {
 				for(Future<Collection<Chromosome>> coll : executor.invokeAll(tasks)) {
-					newPopulation.addAll(coll.get());
+					mPopulation.addAll(coll.get());
 				}
 				break;
 			} catch (InterruptedException e) {
@@ -114,7 +115,6 @@ public class GeneticAlgorithm<Chromosome> {
 			}
 		}
 		mSelection.onSelectionEnd();
-		mPopulation = newPopulation;
 		evaluate();
 	}
 
