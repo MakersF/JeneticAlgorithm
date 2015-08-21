@@ -53,6 +53,7 @@ The algorithm need to know when to stop. In this case the library provides two i
 
 - Generation Condition: stop after N generations.
 - Fitness Condition: stop when the best chromosome has a fitness greater or equal to a threshold.
+- Duration Condition: stop after some given time.
 
 The default is Generation Condition with a N equal to 1000.
 
